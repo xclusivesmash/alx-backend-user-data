@@ -59,6 +59,25 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     return connection
 
 
+def main():
+    """ Prints db rows in a formatted manner.
+    """
+    db = get_db()
+    cursor = db.cursor()
+    # main workflow
+    cursor.execute("SELECT * FROM users;")
+    fields = [f[0] for f in cursor.description]
+    # access the logger
+    logger = get_logger()
+
+    for row in cursor:
+        string_row = ''.join(f'{f}={str(r)}; ' for r, f in zip(row, fields))
+        logger.info(string_row.strip())
+    # close cursor
+    cursor.close()
+    db.close()
+
+
 class RedactingFormatter(logging.Formatter):
     """ Redacting Formatter class
     """
@@ -85,3 +104,8 @@ class RedactingFormatter(logging.Formatter):
         record.msg = filter_datum(self.fields, self.REDACTION,
                                   record.getMessage(), self.SEPARATOR)
         return super(RedactingFormatter, self).format(record)
+
+
+if __name__ == "__main__":
+    # execute the main function
+    main()
