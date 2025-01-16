@@ -6,6 +6,8 @@ description: return a log message obfuscated.
 import re
 from typing import List
 import logging
+from os import environ
+import mysql.connector
 
 
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
@@ -40,6 +42,21 @@ def get_logger() -> logging.Logger:
     stream_handler.setFormatter(RedactingFormatter(list(PII_FIELDS)))
     logger.addHandler(stream_handler)
     return logger
+
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """ connects to a mysql database securely.
+    """
+    username = environ.get("PERSONAL_DATA_DB_USERNAME")
+    password = environ.get("PERSONAL_DATA_DB_PASSWORD")
+    host = environ.get("PERSONAL_DATA_DB_HOST")
+    db_name = environ.get("PERSONAL_DATA_DB_NAME")
+    connection = mysql.connector.connection.MySQLConnection(
+            user=username,
+            password=password,
+            host=host,
+            database=db_name)
+    return connection
 
 
 class RedactingFormatter(logging.Formatter):
