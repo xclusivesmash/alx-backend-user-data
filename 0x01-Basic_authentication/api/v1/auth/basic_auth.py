@@ -3,7 +3,7 @@
 module: basic_auth
 description: handles authorization.
 """
-from auth import Auth
+from api.v1.auth.auth import Auth
 
 
 class BasicAuth(Auth):
