@@ -5,6 +5,8 @@ description: handles authorization.
 """
 from api.v1.auth.auth import Auth
 import base64
+from typing import TypeVar
+from models.user import User
 
 
 class BasicAuth(Auth):
@@ -63,3 +65,30 @@ class BasicAuth(Auth):
             return (None, None)
         email, paswrd = decoded_base64_authorization_header.split(':')
         return (email, paswrd)
+
+    def user_object_from_credentials(self,
+                                     user_email: str,
+                                     user_pwd:
+                                     str) -> TypeVar('User'):
+        """ Creates an instance based on user credeantials.
+        Args:
+            user_email (str): user email address
+            user_pwd (str): user password.
+        Returns:
+            instance of user.
+        """
+        if user_email is None or not isinstance(user_email, str):
+            return None
+        if user_pwd is None or not isinstance(user_pwd, str):
+            return None
+        try:
+            # look for users
+            users = User.search({"email": user_email})
+            if not users or users == []:
+                return None
+            for user in users:
+                if user.is_valid_password(user_pwd):
+                    return user
+            return None
+        except Exception:
+            return None
