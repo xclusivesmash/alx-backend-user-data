@@ -4,6 +4,7 @@ module: basic_auth
 description: handles authorization.
 """
 from api.v1.auth.auth import Auth
+import base64
 
 
 class BasicAuth(Auth):
@@ -24,3 +25,27 @@ class BasicAuth(Auth):
             return None
         token = authorization_header.split(' ')[-1]
         return token
+
+    def decode_base64_authorization_header(self,
+                                           base64_authorization_header:
+                                           str) -> str:
+        """ decodes the base64_authorization_header string using base64
+        Args:
+            base64_authorization_header (str): not decoded string.
+        Returns:
+            decoded value of base64_authorization_header.
+        """
+        if base64_authorization_header is None:
+            return None
+        if not isinstance(base64_authorization_header, str):
+            return None
+        try:
+            # 1. encode
+            encoded = base64_authorization_header.encode('utf-8')
+            # 2. decode using base64
+            b64 = base64.b64decode(encoded)
+            # 3. decode
+            decoded = b64.decode('utf-8')
+            return decoded
+        except Exception:
+            return None
