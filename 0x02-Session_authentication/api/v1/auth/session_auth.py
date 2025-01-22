@@ -5,6 +5,8 @@ description: implements the session authorization.
 """
 from .auth import Auth
 import uuid
+from models.user import User
+from flask import request
 
 
 class SessionAuth(Auth):
@@ -38,3 +40,13 @@ class SessionAuth(Auth):
         if not isinstance(session_id, str):
             return None
         return self.user_id_by_session_id.get(session_id)
+
+    def current_user(self, request=None):
+        """ returns a user instance based on cookie value.
+        Args:
+            request: request objetct.
+        """
+        cookie = self.session_cookie(request)
+        user_id = self.user_id_for_session_id(cookie)
+        user = User.get(user_id)
+        return user
