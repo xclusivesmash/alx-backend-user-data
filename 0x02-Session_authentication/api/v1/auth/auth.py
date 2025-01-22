@@ -5,6 +5,7 @@ description: handling authorization.
 """
 from flask import request
 from typing import List, TypeVar
+import os
 
 
 class Auth:
@@ -51,3 +52,13 @@ class Auth:
         """
         """
         return None
+
+    def session_cookie(self, request=None):
+        """ implements session cookies.
+        Args:
+            request: request object.
+        """
+        if request is None:
+            return None
+        key = os.getenv('SESSION_NAME')
+        return request.cookies.get(key)
