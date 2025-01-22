@@ -5,6 +5,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.orm.exc import NoResultFound
 
 from user import Base
 from user import User
@@ -41,4 +43,18 @@ class DB:
         except Exception:
             self._session.rollback()
             user = None
+        return user
+
+    def find_user_by(self, **kwargs) -> User:
+        """ gets users from db.
+        Args:
+            kwargs (dict): key=value pair dictionary.
+        Returns:
+            user object.
+        """
+        if not kwargs:
+            raise InvalidRequestError
+        user = self._session.query(User).filter_by(**kwargs).first()
+        if not user:
+            raise NoResultFound
         return user
