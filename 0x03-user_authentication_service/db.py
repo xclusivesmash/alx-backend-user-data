@@ -35,6 +35,11 @@ class DB:
 
     def add_user(self, email: str, hashed_password: str) -> User:
         """ Adds user to database.
+        Args:
+            email (str): user email.
+            hashed_password (str): user encoded password.
+        Returns:
+            user object.
         """
         try:
             user = User(email=email, hashed_password=hashed_password)
@@ -61,6 +66,11 @@ class DB:
 
     def update_user(self, user_id: int, **kwargs: dict) -> None:
         """ updates user based on user id.
+        Args:
+            user_id (int): unique user id.
+            kwargs (dict): key=value pairs.
+        Returns:
+            None.
         """
         user = self.find_user_by(id=user_id)
         for k, v in kwargs.items():
