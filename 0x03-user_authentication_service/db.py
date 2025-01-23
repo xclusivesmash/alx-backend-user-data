@@ -73,10 +73,18 @@ class DB:
             None.
         """
         user = self.find_user_by(id=user_id)
+        if user is None:
+            return
+        temp = {}
         for k, v in kwargs.items():
             if not hasattr(user, k):
                 raise ValueError
-            setattr(user, k, v)
+            else:
+                temp[getattr(User, k)] = v
         # commit to session
+        self._session.query(User).filter(User.id == user_id).update(
+            temp,
+            synchronize_session=False,
+        )
         self._session.commit()
         return None
