@@ -81,3 +81,64 @@ class Auth:
         else:
             user.session_id = _generate_uuid()
         return user.session_id
+
+    def get_user_from_session_id(self, session_id: str) -> Union[User, None]:
+        """ access user's info. based on session_id.
+        Args:
+            session_id (str): user's session_id
+        Returns:
+            user's information.
+        """
+        user = None
+        if session_id is None:
+            return None
+        try:
+            user = self._db.find_user_by(session_id=session_id)
+        except NoResultFound:
+            return None
+        return user
+
+    def destroy_session(self, user_id: int) -> None:
+        """ ends session based on user_id.
+        Args:
+            user_id (int): id of a specific user.
+        """
+        if user_id is None:
+            return None
+        self._db.update_user(user_id, session_id=None)
+
+    def get_reset_password_token(self, email: str) -> str:
+        """ creates a password token return.
+        Args:
+            email (str): user email.
+        """
+        user = None
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            user = None
+        if user is None:
+            raise ValueError()
+        token = _generate_uuid()
+        self._db.update_user(user.id, reset_token=token)
+        return token
+
+    def update_password(self, reset_token: str, password: str) -> None:
+        """ Updates a user's password
+        Args:
+            reset_token (str): reset token
+            password (str): user password.
+        """
+        user = None
+        try:
+            user = self._db.find_user_by(reset_token=reset_token)
+        except NoResultFound:
+            user = None
+        if user is None:
+            raise ValueError()
+        new_password_hash = _hash_password(password)
+        self._db.update_user(
+            user.id,
+            hashed_password=new_password_hash,
+            reset_token=None,
+        )
